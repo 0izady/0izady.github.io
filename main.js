@@ -205,6 +205,7 @@ function setCookie(name, value, days) {
 let level = getCookie("level");
 if (!level) {
   setCookie("level", 1, 30); // Store for 30 days
+  level = 1;
 }
 
 console.log(setCookie("level", 1, 30));
