@@ -1464,8 +1464,13 @@
             }
             return total;
           },
-          selectedDay() {
-            return Number(this.state.selectedDay) || 0;
+          selectedDay: {
+            get() {
+              return Number(this.state.selectedDay) || 0;
+            },
+            set(dayIndex) {
+              this.state.selectedDay = clamp(Number(dayIndex) || 0, 0, 6);
+            }
           },
           totalPlanned() {
             const week = this.currentWeek;
