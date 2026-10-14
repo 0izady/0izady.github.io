@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>برنامه‌ریز مطالعه</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --bg-soft: #eef5ff;
+        --panel: rgba(255, 255, 255, 0.9);
+        --panel-strong: #ffffff;
+        --card: #ffffff;
+        --card-alt: #f8fafc;
+        --border: rgba(15, 23, 42, 0.08);
+        --border-strong: rgba(15, 23, 42, 0.12);
+        --muted: #667085;
+        --text: #111827;
+        --primary: #1d4e89;
+        --primary-soft: #eaf3ff;
+        --primary-strong: #163760;
+        --accent: #2aa5b7;
+        --accent-soft: #eafaf8;
+        --success: #1c9b6a;
+        --success-soft: #eafaf2;
+        --warning: #c98527;
+        --warning-soft: #fff6e8;
+        --danger: #d35d5d;
+        --danger-soft: #fff1f1;
+        --shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+        --shadow-soft: 0 10px 20px rgba(15, 23, 42, 0.04);
+        --radius: 18px;
+        --radius-lg: 24px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background: linear-gradient(180deg, var(--bg) 0%, #edf4fb 100%);
+        color: var(--text);
+        font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        direction: rtl;
+      }
+
+      button, input, select, textarea {
+        font: inherit;
+      }
+
+      .app-shell {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 24px 18px 40px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 18px 22px;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .brand-block {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, var(--primary) 0%, #2a6aa4 100%);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 10px 18px rgba(29, 78, 137, 0.2);
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .brand-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+
+      .week-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.76rem;
+        font-weight: 600;
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+      }
+
+      .button.primary {
+        background: linear-gradient(135deg, var(--primary) 0%, #2c6aa7 100%);
+        color: white;
+        box-shadow: 0 10px 18px rgba(29, 78, 137, 0.18);
+      }
+
+      .button.secondary {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      .button.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .button.success {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+
+      .save-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(28, 155, 106, 0.08);
+        color: var(--success);
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .save-status .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        display: inline-block;
+      }
+
+      .save-status.warning {
+        background: rgba(201, 133, 39, 0.16);
+        color: var(--warning);
+      }
+
+      .save-status.warning .dot {
+        background: var(--warning);
+      }
+
+      .hero {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr;
+        gap: 18px;
+      }
+
+      .hero-card,
+      .panel,
+      .stat-card,
+      .chart-panel,
+      .summary-box,
+      .mini-card {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .hero-card {
+        padding: 24px 26px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .hero-copy h1 {
+        margin: 0;
+        font-size: clamp(1.7rem, 3vw, 2.5rem);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .hero-copy p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      .hero-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+      }
+
+      .hero-status {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .hero-status small {
+        color: var(--muted);
+      }
+
+      .hero-status strong {
+        font-size: 1.05rem;
+      }
+
+      .small-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--success-soft);
+        color: var(--success);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(170px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .stat-card {
+        padding: 18px 20px;
+      }
+
+      .stat-label {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .stat-value {
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        font-weight: 800;
+        margin-top: 12px;
+        letter-spacing: -0.03em;
+      }
+
+      .stat-meta {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .analytics-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .chart-panel {
+        padding: 18px 18px 14px;
+      }
+
+      .chart-panel.large {
+        min-height: 300px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .panel-header h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .chip {
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        font-weight: 600;
+      }
+
+      .chart-canvas {
+        width: 100%;
+        height: 220px !important;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+      }
+
+      .week-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-button {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.8);
+        cursor: pointer;
+        color: var(--text);
+      }
+
+      .nav-button:hover {
+        background: #fff;
+      }
+
+      .day-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .day-chip {
+        background: rgba(255,255,255,0.75);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 9px 12px;
+        min-width: 88px;
+        cursor: pointer;
+        color: var(--muted);
+        transition: all 0.2s ease;
+      }
+
+      .day-chip.active {
+        background: linear-gradient(135deg, var(--primary) 0%, #295c8f 100%);
+        color: white;
+        box-shadow: 0 12px 18px rgba(29, 78, 137, 0.18);
+        border-color: transparent;
+      }
+
+      .panel {
+        margin-top: 24px;
+        padding: 18px 20px;
+      }
+
+      .panel h3 {
+        margin: 0 0 14px;
+        font-size: 1.08rem;
+      }
+
+      .slot-manager {
+        display: grid;
+        grid-template-columns: minmax(160px, 180px) minmax(160px, 180px) auto;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--border-strong);
+        border-radius: 12px;
+        padding: 11px 12px;
+        background: #fbfdff;
+        color: var(--text);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: rgba(29, 78, 137, 0.4);
+        box-shadow: 0 0 0 4px rgba(29, 78, 137, 0.08);
+      }
+
+      textarea {
+        min-height: 74px;
+        resize: vertical;
+      }
+
+      .slot-list {
+        list-style: none;
+        padding: 0;
+        margin: 18px 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .slot-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        background: linear-gradient(135deg, var(--card-alt), rgba(234,243,255,0.75));
+        border: 1px solid rgba(29, 78, 137, 0.08);
+        border-radius: 12px;
+        padding: 9px 12px;
+      }
+
+      .time-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 10px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        padding: 6px 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .icon-button {
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        padding: 5px 7px;
+        cursor: pointer;
+      }
+
+      .table-wrap {
+        overflow: auto;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        margin-top: 18px;
+      }
+
+      table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      th, td {
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        padding: 12px 10px;
+        text-align: center;
+        vertical-align: top;
+      }
+
+      thead th {
+        background: linear-gradient(180deg, #fff, #f5f9ff);
+        color: var(--primary-strong);
+        font-size: 0.88rem;
+      }
+
+      .day-header {
+        min-width: 120px;
+        background: #f9fbff;
+        color: var(--text);
+      }
+
+      .day-date {
+        color: var(--muted);
+        font-size: 0.74rem;
+        margin-top: 6px;
+      }
+
+      .plan-cell {
+        min-width: 170px;
+        min-height: 128px;
+        cursor: pointer;
+        background: #fff;
+        position: relative;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .plan-cell:hover {
+        background: #f7fbff;
+      }
+
+      .plan-cell.empty {
+        background: rgba(238, 245, 255, 0.6);
+      }
+
+      .plan-cell.empty::before {
+        content: "+";
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: rgba(29, 78, 137, 0.24);
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      .plan-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        text-align: right;
+        height: 100%;
+        padding: 10px 8px 8px;
+      }
+
+      .cell-lesson {
+        color: var(--primary);
+        font-weight: 700;
+        line-height: 1.5;
+      }
+
+      .cell-topic {
+        color: var(--text);
+        font-size: 0.85rem;
+        line-height: 1.5;
+      }
+
+      .cell-note {
+        color: var(--muted);
+        font-size: 0.72rem;
+        line-height: 1.4;
+      }
+
+      .cell-done {
+        background: linear-gradient(180deg, rgba(28, 155, 106, 0.05), rgba(28, 155, 106, 0.02));
+      }
+
+      .cell-done .cell-lesson,
+      .cell-done .cell-topic,
+      .cell-done .cell-note {
+        text-decoration: line-through;
+        text-decoration-thickness: 1.5px;
+      }
+
+      .cell-indicator {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .done-mark {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--success);
+        display: inline-block;
+        box-shadow: 0 0 0 5px rgba(28, 155, 106, 0.12);
+      }
+
+      .part-status-label {
+        font-size: 0.72rem;
+        color: var(--success);
+        font-weight: 700;
+      }
+
+      .report-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .summary-box {
+        padding: 18px;
+        background: linear-gradient(180deg, rgba(248,250,252,0.9), rgba(245,249,255,0.9));
+      }
+
+      .summary-box h4 {
+        margin: 0 0 12px;
+        font-size: 1rem;
+      }
+
+      .mini-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .meta-item {
+        background: rgba(255,255,255,0.7);
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        border-radius: 12px;
+        padding: 10px 12px;
+      }
+
+      .meta-item strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.74rem;
+        color: var(--muted);
+      }
+
+      .meta-item span {
+        font-weight: 700;
+      }
+
+      .report-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .report-form .full {
+        grid-column: 1 / -1;
+      }
+
+      .actions-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .empty-panel {
+        text-align: center;
+        color: var(--muted);
+        padding: 30px 12px;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.36);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 70;
+      }
+
+      .modal {
+        width: min(760px, 92vw);
+        max-height: 88vh;
+        overflow: auto;
+        background: rgba(255,255,255,0.96);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 28px 80px rgba(15, 23, 42, 0.16);
+        padding: 22px;
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .close-button {
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 10px;
+        background: #f4f7fb;
+        cursor: pointer;
+      }
+
+      .modal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 14px;
+      }
+
+      .modal-grid .full {
+        grid-column: 1 / -1;
+      }
+
+      .error-text {
+        color: var(--danger);
+        font-size: 0.76rem;
+        margin-top: 6px;
+      }
+
+      .warning-box {
+        background: var(--warning-soft);
+        color: var(--warning);
+        border: 1px solid rgba(201, 133, 39, 0.14);
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+        font-size: 0.83rem;
+      }
+
+      .toast-region {
+        position: fixed;
+        left: 18px;
+        bottom: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 80;
+      }
+
+      .toast {
+        min-width: 220px;
+        max-width: 320px;
+        background: rgba(17, 24, 39, 0.9);
+        color: white;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 0.84rem;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.18);
+      }
+
+      .toast.success { background: rgba(28, 155, 106, 0.95); }
+      .toast.error { background: rgba(211, 93, 93, 0.96); }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 1100px) {
+        .analytics-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .stats-grid,
+        .report-grid,
+        .report-form,
+        .slot-manager {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark">پ</div>
+          <div class="brand-text">
+            <div class="brand-title">برنامه‌ریز مطالعه</div>
+            <div class="week-tag">هفته: {{ currentWeekLabel }}</div>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="button secondary" @click="scrollToSchedule">برنامه‌ریزی هفتگی</button>
+          <button class="button secondary" @click="scrollToReport">گزارش کار روزانه</button>
+          <button class="button secondary" @click="openBackupModal">پشتیبان‌گیری و بازیابی</button>
+          <div :class="['save-status', { warning: saveStatus === 'در حال ذخیره…' }]">
+            <span class="dot"></span>
+            {{ saveStatus }}
+          </div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-card hero-copy">
+          <div class="eyebrow">داشبورد مطالعه</div>
+          <h1>برنامه مطالعاتی من</h1>
+          <p>این هفته روی چه چیزهایی کار می‌کنی؟</p>
+
+          <div class="hero-info">
+            <div class="hero-status">
+              <small>روز فعال</small>
+              <strong>{{ weekDays[selectedDay] }}</strong>
+            </div>
+            <div class="hero-status">
+              <small>پیشرفت هفتگی</small>
+              <strong>{{ weeklyProgress }}٪</strong>
+            </div>
+            <div class="small-pill">{{ completedCount }} از {{ totalPlanned }} پارت انجام شد</div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="panel-header">
+            <h3>وضعیت هفته</h3>
+            <span class="chip">{{ currentWeekLabel }}</span>
+          </div>
+
+          <div class="mini-stats">
+            <div class="meta-item">
+              <strong>زمان مفید</strong>
+              <span>{{ totalWeeklyMinutes }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>تعداد تست</strong>
+              <span>{{ totalWeeklyTests }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>باقی‌مانده</strong>
+              <span>{{ remainingCount }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>روزها</strong>
+              <span>7 روز</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">کل پارت‌ها</div>
+          <div class="stat-value">{{ totalPlanned }}</div>
+          <div class="stat-meta">پارت‌های برنامه‌ریزی‌شده</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">انجام‌شده</div>
+          <div class="stat-value">{{ completedCount }}</div>
+          <div class="stat-meta">پارت‌های تکمیل‌شده</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">باقی‌مانده</div>
+          <div class="stat-value">{{ remainingCount }}</div>
+          <div class="stat-meta">پارت‌های آماده برای انجام</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">پیشرفت</div>
+          <div class="stat-value">{{ weeklyProgress }}%</div>
+          <div class="stat-meta">درصد تکمیل هفتگی</div>
+        </div>
+      </section>
+
+      <section class="analytics-grid">
+        <article class="chart-panel large">
+          <div class="panel-header">
+            <h3>روند مطالعه هفتگی</h3>
+            <span class="chip">ساعت</span>
+          </div>
+          <canvas id="weeklyStudyChart" class="chart-canvas"></canvas>
+        </article>
+
+        <article class="chart-panel">
+          <div class="panel-header">
+            <h3>برنامه در برابر عملکرد</h3>
+            <span class="chip">پارت</span>
+          </div>
+          <canvas id="performanceChart" class="chart-canvas"></canvas>
+        </article>
+
+        <article class="chart-panel">
+          <div class="panel-header">
+            <h3>توزیع زمان درس‌ها</h3>
+            <span class="chip">درس</span>
+          </div>
+          <canvas id="subjectChart" class="chart-canvas"></canvas>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <div class="week-nav">
+          <button class="nav-button" @click="shiftWeek(-1)">‹</button>
+          <button class="button secondary" @click="goToCurrentWeek">هفته جاری</button>
+          <button class="nav-button" @click="shiftWeek(1)">›</button>
+        </div>
+
+        <div class="day-picker">
+          <button
+            v-for="(day, index) in weekDays"
+            :key="day"
+            class="day-chip"
+            :class="{ active: selectedDay === index }"
+            @click="selectedDay = index"
+          >
+            {{ day }}
+          </button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>مدیریت بازه‌های زمانی</h3>
+
+        <div class="slot-manager">
+          <div class="field">
+            <label>ساعت شروع</label>
+            <input v-model="slotForm.start" type="time" />
+          </div>
+
+          <div class="field">
+            <label>ساعت پایان</label>
+            <input v-model="slotForm.end" type="time" />
+          </div>
+
+          <button class="button primary" @click="saveSlotForm">
+            {{ slotForm.editingId ? 'ذخیره بازه' : 'افزودن بازه' }}
+          </button>
+        </div>
+
+        <ul v-if="currentWeek && currentWeek.timeSlots.length" class="slot-list">
+          <li v-for="slot in currentWeek.timeSlots" :key="slot.id" class="slot-item">
+            <span class="time-badge">{{ slot.start }} تا {{ slot.end }}</span>
+            <button class="icon-button" title="ویرایش" @click="startEditSlot(slot)">✏️</button>
+            <button class="icon-button" title="حذف" @click="deleteSlot(slot)">🗑️</button>
+          </li>
+        </ul>
+
+        <div v-else class="empty-panel">هنوز هیچ بازه زمانی‌ای برای این هفته تعریف نشده است.</div>
+      </section>
+
+      <section class="panel" id="schedule-panel">
+        <h3>برنامه هفتگی</h3>
+
+        <div v-if="currentWeek && currentWeek.timeSlots.length" class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="day-header">روز</th>
+                <th v-for="slot in currentWeek.timeSlots" :key="slot.id">
+                  {{ slot.start }} تا {{ slot.end }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(dayName, dayIndex) in weekDays" :key="dayName">
+                <td class="day-header">
+                  {{ dayName }}
+                  <div class="day-date">{{ formatPersianDate(getDateForDayIndex(dayIndex)) }}</div>
+                </td>
+
+                <td
+                  v-for="slot in currentWeek.timeSlots"
+                  :key="slot.id + '-' + dayIndex"
+                  :class="['plan-cell', { empty: !getPlan(dayIndex, slot.id), cellDone: isPartDone(dayIndex, slot.id) }]"
+                  @click="openCellModal(dayIndex, slot.id)"
+                >
+                  <div v-if="getPlan(dayIndex, slot.id)" class="plan-content">
+                    <div class="cell-lesson">{{ getPlan(dayIndex, slot.id).lesson || 'بدون عنوان' }}</div>
+                    <div class="cell-topic">{{ getPlan(dayIndex, slot.id).topic || '—' }}</div>
+                    <div v-if="getPlan(dayIndex, slot.id).description" class="cell-note">{{ getPlan(dayIndex, slot.id).description }}</div>
+                    <div class="cell-indicator">
+                      <span class="done-mark" v-if="isPartDone(dayIndex, slot.id)"></span>
+                      <span class="part-status-label" v-if="isPartDone(dayIndex, slot.id)">انجام شد</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else class="empty-panel">برای شروع، یک یا چند بازه زمانی اضافه کنید و سپس خانه‌های جدول را برای ثبت پارت‌ها انتخاب نمایید.</div>
+      </section>
+
+      <section class="panel" id="report-panel">
+        <h3>گزارش کار روزانه</h3>
+
+        <div class="report-grid">
+          <div class="summary-box">
+            <h4>اطلاعات خودکار</h4>
+            <div class="mini-stats">
+              <div class="meta-item">
+                <strong>تاریخ</strong>
+                <span>{{ formatPersianDate(getDateForDayIndex(selectedDay)) }}</span>
+              </div>
+              <div class="meta-item">
+                <strong>ساعت شروع</strong>
+                <span>{{ dailySummary.startTime || '—' }}</span>
+              </div>
+              <div class="meta-item">
+                <strong>ساعت پایان</strong>
+                <span>{{ dailySummary.endTime || '—' }}</span>
+              </div>
+              <div class="meta-item">
+                <strong>مجموع مطالعه</strong>
+                <span>{{ dailySummary.totalStudy }}</span>
+              </div>
+              <div class="meta-item">
+                <strong>مجموع تست</strong>
+                <span>{{ dailySummary.totalTests }}</span>
+              </div>
+              <div class="meta-item">
+                <strong>پارت‌ها</strong>
+                <span>{{ dailySummary.partCount }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-box">
+            <h4>پارت‌های ثبت‌شده</h4>
+            <div v-if="dailySummary.parts.length">
+              <div v-for="part in dailySummary.parts" :key="part.id" class="meta-item" style="margin-bottom:10px;">
+                <strong>{{ part.label }}</strong>
+                <span>{{ part.studyText }} · {{ part.testText }}</span>
+              </div>
+            </div>
+            <div v-else class="empty-panel" style="padding:18px 12px;">برای این روز هنوز گزارشی ثبت نشده است.</div>
+          </div>
+        </div>
+
+        <div class="report-form">
+          <div class="field">
+            <label>میزان خواب (ساعت)</label>
+            <input v-model.number="dailyReportForm.sleep" type="number" min="0" step="0.5" />
+          </div>
+
+          <div class="field">
+            <label>میزان استفاده غیرضروری از گوشی (ساعت)</label>
+            <input v-model.number="dailyReportForm.mobileUsage" type="number" min="0" step="0.5" />
+          </div>
+
+          <div class="field">
+            <label>تمرکز (۰ تا ۱۰)</label>
+            <input v-model.number="dailyReportForm.focus" type="number" min="0" max="10" step="0.5" />
+          </div>
+
+          <div class="field">
+            <label>حال و انرژی (۰ تا ۱۰)</label>
+            <input v-model.number="dailyReportForm.energy" type="number" min="0" max="10" step="0.5" />
+          </div>
+
+          <div class="field full">
+            <label>مشق شب</label>
+            <textarea v-model="dailyReportForm.homework" placeholder="مانند: 5 مسئله شیمی - حفظیات شیمی و لغات ادبیات"></textarea>
+          </div>
+
+          <div class="field full">
+            <label>مبحث یا درسی که نیاز به توجه بیشتری دارد</label>
+            <textarea v-model="dailyReportForm.needsAttention"></textarea>
+          </div>
+
+          <div class="field full">
+            <label>مهم‌ترین نکته‌ای که باید در برنامه‌ریزی بعدی در نظر گرفته شود</label>
+            <textarea v-model="dailyReportForm.note"></textarea>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button class="button primary" @click="saveDailyReport">ذخیره اطلاعات روزانه</button>
+          <button class="button secondary" @click="downloadDailyTxt">دانلود گزارش TXT</button>
+        </div>
+      </section>
+
+      <div v-if="modal.visible" class="modal-backdrop" @click.self="closeModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>{{ modal.title }}</h3>
+            <button class="close-button" @click="closeModal">✕</button>
+          </div>
+
+          <div v-if="modal.type === 'cell'">
+            <div class="warning-box" v-if="modalSlotHasExistingData">
+              این پارت در حال حاضر دارای اطلاعات ثبت‌شده است؛ ذخیره یا حذف آن، وضعیت انجام‌شدن و آمار را به‌روزرسانی می‌کند.
+            </div>
+
+            <div class="modal-grid">
+              <div class="field">
+                <label>نام درس</label>
+                <input v-model="cellForm.lesson" type="text" placeholder="مانند: حسابان" />
+              </div>
+
+              <div class="field">
+                <label>مبحث / فعالیت</label>
+                <input v-model="cellForm.topic" type="text" placeholder="مانند: وارون تابع" />
+              </div>
+
+              <div class="field full">
+                <label>توضیحات</label>
+                <textarea v-model="cellForm.description" placeholder="توضیحات اختیاری"></textarea>
+              </div>
+
+              <div class="field full">
+                <label style="display:flex; align-items:center; gap:8px;">
+                  <input v-model="cellForm.completed" type="checkbox" />
+                  پارت انجام شده است
+                </label>
+              </div>
+
+              <div class="field">
+                <label>زمان مطالعه مفید (دقیقه)</label>
+                <input v-model.number="cellForm.minutes" type="number" min="0" step="5" :disabled="!cellForm.completed" />
+              </div>
+
+              <div class="field">
+                <label>نحوه عملکرد</label>
+                <select v-model="cellForm.performance" :disabled="!cellForm.completed">
+                  <option value="عالی">عالی</option>
+                  <option value="خوب">خوب</option>
+                  <option value="متوسط">متوسط</option>
+                  <option value="ضعیف">ضعیف</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>تعداد تست</label>
+                <input v-model.number="cellForm.testCount" type="number" min="0" step="1" :disabled="!cellForm.completed" />
+              </div>
+
+              <div class="field">
+                <label>تعداد پاسخ درست</label>
+                <input v-model.number="cellForm.correct" type="number" min="0" step="1" :disabled="!cellForm.completed" />
+              </div>
+
+              <div class="field">
+                <label>تعداد پاسخ غلط</label>
+                <input v-model.number="cellForm.wrong" type="number" min="0" step="1" :disabled="!cellForm.completed" />
+              </div>
+
+              <div class="field">
+                <label>تعداد تست نزده</label>
+                <input v-model.number="cellForm.unanswered" type="number" min="0" step="1" :disabled="!cellForm.completed" />
+              </div>
+
+              <div class="field full">
+                <label>مشکل اصلی در این پارت</label>
+                <textarea v-model="cellForm.issue" placeholder="مانند: بی‌دقتی در محاسبات یا ضعف در مفهوم تابع" :disabled="!cellForm.completed"></textarea>
+              </div>
+
+              <div v-if="cellErrors.length" class="full">
+                <div v-for="err in cellErrors" :key="err" class="error-text">{{ err }}</div>
+              </div>
+            </div>
+
+            <div class="actions-row">
+              <button class="button primary" @click="saveCellData">ثبت عملکرد</button>
+              <button class="button secondary" @click="clearCellData">خالی کردن پارت</button>
+              <button class="button danger" @click="closeModal">انصراف</button>
+            </div>
+          </div>
+
+          <div v-else-if="modal.type === 'backup'">
+            <div class="modal-grid">
+              <div class="field full">
+                <button class="button primary" @click="downloadBackupJson">دانلود فایل JSON پشتیبان</button>
+              </div>
+
+              <div class="field full">
+                <label>بازیابی از فایل JSON</label>
+                <input type="file" accept="application/json" @change="importBackupJson" />
+              </div>
+
+              <div class="field full">
+                <button class="button secondary" @click="downloadCurrentWeekTxt">دانلود برنامه هفته جاری به TXT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast-region">
+        <div v-for="toast in toasts" :key="toast.id" :class="['toast', toast.type]">
+          {{ toast.message }}
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, reactive, onMounted, watch } = Vue;
+
+      const STORAGE_KEY = 'studyPlannerApp.v1';
+      const weekDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
+
+      function toIsoDate(date) {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function makeId(prefix = 'id') {
+        return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+      }
+
+      function parseTimeToMinutes(timeValue) {
+        if (!timeValue || typeof timeValue !== 'string') return null;
+        const match = /^([0-1]?\d|2[0-3]):([0-5]\d)$/.exec(timeValue);
+        if (!match) return null;
+        const hours = Number(match[1]);
+        const minutes = Number(match[2]);
+        return hours * 60 + minutes;
+      }
+
+      function formatDurationMinutes(totalMinutes) {
+        if (totalMinutes === null || totalMinutes === undefined || Number.isNaN(Number(totalMinutes))) return '—';
+        const hours = Number(totalMinutes) / 60;
+        return `${Number(hours.toFixed(1))} ساعت`;
+      }
+
+      function formatMinutesToHourText(totalMinutes) {
+        if (totalMinutes === null || totalMinutes === undefined || Number.isNaN(Number(totalMinutes))) return '—';
+        const hours = Number(totalMinutes) / 60;
+        return `${hours.toFixed(1).replace(/\.0$/, '')} ساعت`;
+      }
+
+      function getWeekStart(date) {
+        const copy = new Date(date);
+        copy.setHours(0, 0, 0, 0);
+        const dayNumber = copy.getDay();
+        const offset = (dayNumber + 1) % 7;
+        copy.setDate(copy.getDate() - offset);
+        return copy;
+      }
+
+      function addDays(base, count) {
+        const copy = new Date(base);
+        copy.setDate(copy.getDate() + count);
+        return copy;
+      }
+
+      function startOfWeekFromIso(isoDate) {
+        const date = new Date(`${isoDate}T00:00:00`);
+        return getWeekStart(date);
+      }
+
+      function normalizeFloatValue(value) {
+        if (value === null || value === undefined || value === '') return null;
+        const num = Number(value);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function formatPersianDate(dateInput) {
+        const date = new Date(dateInput);
+        if (Number.isNaN(date.getTime())) return '—';
+        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          weekday: 'short'
+        }).format(date);
+      }
+
+      function toPersianDayLabel(dateInput) {
+        const date = new Date(dateInput);
+        if (Number.isNaN(date.getTime())) return '—';
+        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { weekday: 'long' }).format(date);
+      }
+
+      // Storage layer
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.weeks)) {
+            return null;
+          }
+          return parsed;
+        } catch (error) {
+          console.error('Failed to load storage', error);
+          return null;
+        }
+      }
+
+      function createWeek(startDate) {
+        const weekStart = getWeekStart(startDate);
+        const endDate = addDays(weekStart, 6);
+        return {
+          id: `week-${toIsoDate(weekStart)}`,
+          startDate: toIsoDate(weekStart),
+          endDate: toIsoDate(endDate),
+          timeSlots: [],
+          plan: {},
+          partReports: {},
+          dailyReports: {}
+        };
+      }
+
+      function validateReport(values) {
+        const errors = [];
+
+        if (values.minutes !== null && values.minutes !== undefined && values.minutes !== '' && Number(values.minutes) < 0) {
+          errors.push('زمان مطالعه مفید باید عددی نامنفی باشد.');
+        }
+
+        const testCount = normalizeFloatValue(values.testCount);
+        const correct = normalizeFloatValue(values.correct);
+        const wrong = normalizeFloatValue(values.wrong);
+        const unanswered = normalizeFloatValue(values.unanswered);
+
+        if (testCount !== null && testCount < 0) {
+          errors.push('تعداد تست نباید منفی باشد.');
+        }
+        if (correct !== null && correct < 0) errors.push('تعداد پاسخ درست نباید منفی باشد.');
+        if (wrong !== null && wrong < 0) errors.push('تعداد پاسخ غلط نباید منفی باشد.');
+        if (unanswered !== null && unanswered < 0) errors.push('تعداد تست نزده نباید منفی باشد.');
+
+        if (testCount !== null && (correct !== null || wrong !== null || unanswered !== null)) {
+          const sum = (correct ?? 0) + (wrong ?? 0) + (unanswered ?? 0);
+          if (sum !== testCount) {
+            errors.push('جمع درست + غلط + نزده باید با تعداد تست برابر باشد.');
+          }
+        }
+
+        return errors;
+      }
+
+      function getSlotDurationMinutes(slot) {
+        const startMinutes = parseTimeToMinutes(slot.start);
+        const endMinutes = parseTimeToMinutes(slot.end);
+        if (startMinutes === null || endMinutes === null) return 0;
+        return Math.max(0, endMinutes - startMinutes);
+      }
+
+      function timeRangesOverlap(aStart, aEnd, bStart, bEnd) {
+        const aS = parseTimeToMinutes(aStart);
+        const aE = parseTimeToMinutes(aEnd);
+        const bS = parseTimeToMinutes(bStart);
+        const bE = parseTimeToMinutes(bEnd);
+        if (aS === null || aE === null || bS === null || bE === null) return false;
+        return aS < bE && bS < aE;
+      }
+
+      const app = createApp({
+        data() {
+          const state = loadState() || {
+            appVersion: 1,
+            selectedWeekId: null,
+            selectedDay: 0,
+            weeks: []
+          };
+
+          if (!state.weeks.length) {
+            const week = createWeek(new Date());
+            state.weeks.push(week);
+          }
+
+          state.selectedWeekId = state.selectedWeekId || state.weeks[0].id;
+          state.selectedDay = clamp(Number(state.selectedDay) || 0, 0, 6);
+
+          return {
+            state,
+            chartInstances: {},
+            chartResizeHandler: null,
+            slotForm: { start: '08:00', end: '09:30', editingId: null },
+            modal: {
+              visible: false,
+              type: '',
+              title: ''
+            },
+            cellForm: {
+              lesson: '',
+              topic: '',
+              description: '',
+              minutes: '',
+              testCount: '',
+              correct: '',
+              wrong: '',
+              unanswered: '',
+              performance: 'عالی',
+              issue: '',
+              completed: false
+            },
+            cellErrors: [],
+            dailyReportForm: {
+              sleep: '',
+              mobileUsage: '',
+              focus: '',
+              energy: '',
+              homework: '',
+              needsAttention: '',
+              note: ''
+            },
+            toasts: [],
+            saveStatus: 'ذخیره شد',
+            editCellKey: null,
+            modalSlotHasExistingData: false,
+            weekDays
+          };
+        },
+        computed: {
+          currentWeek() {
+            if (!this.state.weeks.length) return null;
+            return this.state.weeks.find((week) => week.id === this.state.selectedWeekId) || this.state.weeks[0];
+          },
+          currentWeekLabel() {
+            const week = this.currentWeek;
+            if (!week) return 'بدون هفته';
+            return `${formatPersianDate(week.startDate)} تا ${formatPersianDate(week.endDate)}`;
+          },
+          totalWeeklyMinutes() {
+            const week = this.currentWeek;
+            if (!week) return '—';
+            let totalMinutes = 0;
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const reports = week.partReports?.[dayIndex] || {};
+              totalMinutes += Object.values(reports).reduce((sum, report) => sum + (Number(report.minutes) || 0), 0);
+            }
+            return `${(totalMinutes / 60).toFixed(1).replace(/\.0$/, '')} ساعت`;
+          },
+          totalWeeklyTests() {
+            const week = this.currentWeek;
+            if (!week) return 0;
+            let total = 0;
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const reports = week.partReports?.[dayIndex] || {};
+              total += Object.values(reports).reduce((sum, report) => sum + (Number(report.testCount) || 0), 0);
+            }
+            return total;
+          },
+          selectedDay() {
+            return Number(this.state.selectedDay) || 0;
+          },
+          totalPlanned() {
+            const week = this.currentWeek;
+            if (!week) return 0;
+            let total = 0;
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const dayPlan = week.plan?.[dayIndex] || {};
+              total += Object.keys(dayPlan).length;
+            }
+            return total;
+          },
+          completedCount() {
+            const week = this.currentWeek;
+            if (!week) return 0;
+            let total = 0;
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const dayReports = week.partReports?.[dayIndex] || {};
+              total += Object.keys(dayReports).length;
+            }
+            return total;
+          },
+          remainingCount() {
+            return Math.max(0, this.totalPlanned - this.completedCount);
+          },
+          weeklyProgress() {
+            if (!this.totalPlanned) return 0;
+            return Math.round((this.completedCount / this.totalPlanned) * 100);
+          },
+          dailySummary() {
+            const dayIndex = this.selectedDay;
+            const week = this.currentWeek;
+            if (!week) {
+              return { startTime: '—', endTime: '—', totalStudy: '—', totalTests: '—', partCount: 0, parts: [] };
+            }
+
+            const dayPlan = week.plan?.[dayIndex] || {};
+            const dayReports = week.partReports?.[dayIndex] || {};
+            const orderedSlots = week.timeSlots || [];
+            const parts = [];
+
+            let totalMinutes = 0;
+            let totalTests = 0;
+            let startTime = null;
+            let endTime = null;
+
+            for (const slot of orderedSlots) {
+              const slotId = slot.id;
+              const part = dayPlan[slotId];
+              const report = dayReports[slotId];
+              if (!part || !report) continue;
+              const minutes = normalizeFloatValue(report.minutes) ?? 0;
+              const testCount = normalizeFloatValue(report.testCount) ?? 0;
+              totalMinutes += minutes;
+              totalTests += testCount;
+              const label = `${part.lesson || 'پارت'} / ${part.topic || '—'}`;
+              parts.push({
+                id: slotId,
+                label,
+                studyText: minutes ? `${formatMinutesToHourText(minutes)}` : '—',
+                testText: testCount ? `${testCount} تست` : '—'
+              });
+
+              if (startTime === null || slot.start < startTime) startTime = slot.start;
+              if (endTime === null || slot.end > endTime) endTime = slot.end;
+            }
+
+            return {
+              startTime: startTime || '—',
+              endTime: endTime || '—',
+              totalStudy: totalMinutes ? formatMinutesToHourText(totalMinutes) : '—',
+              totalTests: totalTests || '—',
+              partCount: parts.length,
+              parts
+            };
+          }
+        },
+        watch: {
+          state: {
+            handler() {
+              this.saveState();
+              this.$nextTick(() => this.updateAnalyticsCharts());
+            },
+            deep: true
+          },
+          selectedDay() {
+            this.resetDailyForm();
+            this.$nextTick(() => this.updateAnalyticsCharts());
+          }
+        },
+        methods: {
+          getDateForDayIndex(dayIndex) {
+            const week = this.currentWeek;
+            if (!week) return new Date();
+            return addDays(new Date(`${week.startDate}T00:00:00`), dayIndex);
+          },
+          formatPersianDate(date) {
+            return formatPersianDate(date);
+          },
+          scrollToSchedule() {
+            document.getElementById('schedule-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          },
+          scrollToReport() {
+            document.getElementById('report-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          },
+          buildWeeklyStudyData() {
+            const week = this.currentWeek;
+            const labels = weekDays;
+            const data = labels.map((_, index) => {
+              const reports = week?.partReports?.[index] || {};
+              return Object.values(reports).reduce((sum, item) => sum + (Number(item.minutes) || 0), 0) / 60;
+            });
+            return { labels, data };
+          },
+          buildPerformanceData() {
+            const week = this.currentWeek;
+            const planned = weekDays.map((_, index) => {
+              const plan = week?.plan?.[index] || {};
+              return Object.keys(plan).length;
+            });
+            const completed = weekDays.map((_, index) => {
+              const reports = week?.partReports?.[index] || {};
+              return Object.keys(reports).length;
+            });
+            return { labels: weekDays, planned, completed };
+          },
+          buildSubjectData() {
+            const week = this.currentWeek;
+            if (!week) return { labels: [], data: [] };
+            const map = {};
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const reports = week.partReports?.[dayIndex] || {};
+              for (const slotId of Object.keys(reports)) {
+                const plan = (week.plan?.[dayIndex] || {})[slotId];
+                const name = plan?.lesson || 'نامشخص';
+                map[name] = (map[name] || 0) + (Number(reports[slotId].minutes) || 0);
+              }
+            }
+            const entries = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6);
+            return {
+              labels: entries.map(([label]) => label),
+              data: entries.map(([, value]) => Number((value / 60).toFixed(1)))
+            };
+          },
+          updateAnalyticsCharts() {
+            if (typeof Chart === 'undefined') return;
+            const weeklyData = this.buildWeeklyStudyData();
+            const performanceData = this.buildPerformanceData();
+            const subjectData = this.buildSubjectData();
+
+            const baseColors = ['#1d4e89', '#2aa5b7', '#1c9b6a', '#d98a36', '#8c9bb5', '#c57a7a'];
+
+            if (this.chartInstances.weeklyStudy) {
+              this.chartInstances.weeklyStudy.destroy();
+            }
+            this.chartInstances.weeklyStudy = new Chart(document.getElementById('weeklyStudyChart'), {
+              type: 'line',
+              data: {
+                labels: weeklyData.labels,
+                datasets: [{
+                  label: 'ساعت مطالعه',
+                  data: weeklyData.data,
+                  borderColor: '#1d4e89',
+                  backgroundColor: 'rgba(29, 78, 137, 0.14)',
+                  borderWidth: 3,
+                  tension: 0.35,
+                  fill: true,
+                  pointRadius: 4,
+                  pointHoverRadius: 5
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { ticks: { color: '#667085', font: { family: 'Vazirmatn' } } },
+                  y: { ticks: { color: '#667085', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(148,163,184,0.15)' } }
+                }
+              }
+            });
+
+            if (this.chartInstances.performanceChart) {
+              this.chartInstances.performanceChart.destroy();
+            }
+            this.chartInstances.performanceChart = new Chart(document.getElementById('performanceChart'), {
+              type: 'bar',
+              data: {
+                labels: performanceData.labels,
+                datasets: [
+                  {
+                    label: 'برنامه‌ریزی‌شده',
+                    data: performanceData.planned,
+                    backgroundColor: 'rgba(29, 78, 137, 0.18)',
+                    borderRadius: 8
+                  },
+                  {
+                    label: 'انجام‌شده',
+                    data: performanceData.completed,
+                    backgroundColor: 'rgba(28, 155, 106, 0.7)',
+                    borderRadius: 8
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#667085', font: { family: 'Vazirmatn' } } } },
+                scales: {
+                  x: { ticks: { color: '#667085', font: { family: 'Vazirmatn' } } },
+                  y: { ticks: { color: '#667085', font: { family: 'Vazirmatn' } }, grid: { color: 'rgba(148,163,184,0.15)' } }
+                }
+              }
+            });
+
+            if (this.chartInstances.subjectChart) {
+              this.chartInstances.subjectChart.destroy();
+            }
+            this.chartInstances.subjectChart = new Chart(document.getElementById('subjectChart'), {
+              type: 'doughnut',
+              data: {
+                labels: subjectData.labels.length ? subjectData.labels : ['بدون داده'],
+                datasets: [{
+                  data: subjectData.data.length ? subjectData.data : [1],
+                  backgroundColor: subjectData.data.length ? subjectData.labels.map((_, index) => baseColors[index % baseColors.length]) : ['#e2e8f0'],
+                  borderWidth: 0,
+                  hoverOffset: 8
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: { color: '#667085', font: { family: 'Vazirmatn' } }
+                  }
+                }
+              }
+            });
+          },
+          showToast(message, type = 'success') {
+            const id = makeId('toast');
+            this.toasts.push({ id, message, type });
+            setTimeout(() => {
+              this.toasts = this.toasts.filter((toast) => toast.id !== id);
+            }, 2600);
+          },
+          saveState() {
+            this.saveStatus = 'در حال ذخیره…';
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+              this.saveStatus = 'ذخیره شد';
+            } catch (error) {
+              console.error('Failed to save state:', error);
+              this.saveStatus = 'خطا در ذخیره‌سازی';
+              this.showToast('ذخیره‌سازی در مرورگر با خطا مواجه شد.', 'error');
+            }
+          },
+          ensureWeekExists() {
+            if (!this.currentWeek) {
+              const week = createWeek(new Date());
+              this.state.weeks.push(week);
+              this.state.selectedWeekId = week.id;
+            }
+          },
+          shiftWeek(direction) {
+            const week = this.currentWeek;
+            if (!week) return;
+            const currentDate = new Date(`${week.startDate}T00:00:00`);
+            const targetWeek = addDays(currentDate, direction * 7);
+            const found = this.state.weeks.find((item) => item.startDate === toIsoDate(getWeekStart(targetWeek)));
+            if (found) {
+              this.state.selectedWeekId = found.id;
+            } else {
+              const createdWeek = createWeek(targetWeek);
+              this.state.weeks.push(createdWeek);
+              this.state.selectedWeekId = createdWeek.id;
+              this.showToast('هفته جدید ایجاد شد.', 'success');
+            }
+            this.state.selectedDay = 0;
+          },
+          goToCurrentWeek() {
+            const current = createWeek(new Date());
+            const existing = this.state.weeks.find((week) => week.id === current.id);
+            if (existing) {
+              this.state.selectedWeekId = existing.id;
+            } else {
+              this.state.weeks.push(current);
+              this.state.selectedWeekId = current.id;
+            }
+            this.state.selectedDay = 0;
+          },
+          startEditSlot(slot) {
+            this.slotForm = {
+              start: slot.start,
+              end: slot.end,
+              editingId: slot.id
+            };
+          },
+          saveSlotForm() {
+            const start = this.slotForm.start;
+            const end = this.slotForm.end;
+            if (!start || !end) {
+              this.showToast('لطفاً زمان شروع و پایان را وارد کنید.', 'error');
+              return;
+            }
+            const startMinutes = parseTimeToMinutes(start);
+            const endMinutes = parseTimeToMinutes(end);
+            if (startMinutes === null || endMinutes === null) {
+              this.showToast('فرمت ساعت نامعتبر است.', 'error');
+              return;
+            }
+            if (startMinutes >= endMinutes) {
+              this.showToast('ساعت شروع باید قبل از ساعت پایان باشد.', 'error');
+              return;
+            }
+
+            const week = this.currentWeek;
+            if (!week) return;
+
+            if (this.slotForm.editingId) {
+              const existingIndex = week.timeSlots.findIndex((slot) => slot.id === this.slotForm.editingId);
+              if (existingIndex >= 0) {
+                const existing = week.timeSlots[existingIndex];
+                const hasRelatedData = this.hasSlotData(existing.id);
+                if (hasRelatedData && !window.confirm('این بازه برای پارت‌ها یا گزارش‌ها استفاده شده است. با تغییر آن، داده‌های مرتبط حذف می‌شوند. ادامه می‌دهید؟')) {
+                  return;
+                }
+                existing.start = start;
+                existing.end = end;
+                this.showToast('بازه زمانی به‌روزرسانی شد.', 'success');
+              }
+            } else {
+              const overlapping = week.timeSlots.some((slot) => timeRangesOverlap(start, end, slot.start, slot.end));
+              if (overlapping) {
+                this.showToast('بازه جدید با بازه دیگری تداخل دارد.', 'error');
+                return;
+              }
+              week.timeSlots.push({ id: makeId('slot'), start, end });
+              week.timeSlots.sort((a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start));
+              this.showToast('بازه جدید اضافه شد.', 'success');
+            }
+
+            this.slotForm = { start: '08:00', end: '09:30', editingId: null };
+            this.saveState();
+          },
+          hasSlotData(slotId) {
+            const week = this.currentWeek;
+            if (!week) return false;
+            let hasPlan = false;
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const dayPlan = week.plan?.[dayIndex] || {};
+              if (dayPlan[slotId]) {
+                hasPlan = true;
+                break;
+              }
+              const dayReports = week.partReports?.[dayIndex] || {};
+              if (dayReports[slotId]) {
+                return true;
+              }
+            }
+            return hasPlan;
+          },
+          deleteSlot(slot) {
+            const week = this.currentWeek;
+            if (!week) return;
+            const hasRelatedData = this.hasSlotData(slot.id);
+            if (hasRelatedData && !window.confirm('این بازه دارای اطلاعات برنامه یا گزارش است. حذف آن باعث حذف داده‌های مرتبط می‌شود. ادامه می‌دهید؟')) {
+              return;
+            }
+
+            week.timeSlots = week.timeSlots.filter((item) => item.id !== slot.id);
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              if (week.plan?.[dayIndex]) delete week.plan[dayIndex][slot.id];
+              if (week.partReports?.[dayIndex]) delete week.partReports[dayIndex][slot.id];
+            }
+
+            this.showToast('بازه زمانی حذف شد.', 'success');
+            this.saveState();
+          },
+          getPlan(dayIndex, slotId) {
+            const week = this.currentWeek;
+            if (!week) return null;
+            const dayPlan = week.plan?.[dayIndex] || {};
+            return dayPlan[slotId] || null;
+          },
+          getReport(dayIndex, slotId) {
+            const week = this.currentWeek;
+            if (!week) return null;
+            const dayReports = week.partReports?.[dayIndex] || {};
+            return dayReports[slotId] || null;
+          },
+          isPartDone(dayIndex, slotId) {
+            return !!this.getReport(dayIndex, slotId);
+          },
+          openCellModal(dayIndex, slotId) {
+            const week = this.currentWeek;
+            if (!week) return;
+            const part = this.getPlan(dayIndex, slotId) || {};
+            const report = this.getReport(dayIndex, slotId) || {};
+            this.editCellKey = { dayIndex, slotId };
+            this.modal = {
+              visible: true,
+              type: 'cell',
+              title: `ثبت عملکرد پارت — ${part.lesson || 'پارت جدید'}`
+            };
+            this.modalSlotHasExistingData = !!report || !!part;
+            this.cellForm = {
+              lesson: part.lesson || '',
+              topic: part.topic || '',
+              description: part.description || '',
+              minutes: report.minutes ?? '',
+              testCount: report.testCount ?? '',
+              correct: report.correct ?? '',
+              wrong: report.wrong ?? '',
+              unanswered: report.unanswered ?? '',
+              performance: report.performance || 'عالی',
+              issue: report.issue || '',
+              completed: !!report
+            };
+            this.cellErrors = [];
+          },
+          closeModal() {
+            this.modal = { visible: false, type: '', title: '' };
+            this.cellErrors = [];
+          },
+          saveCellData() {
+            const week = this.currentWeek;
+            const { dayIndex, slotId } = this.editCellKey || {};
+            if (!week || dayIndex === undefined || !slotId) return;
+
+            const payload = {
+              lesson: (this.cellForm.lesson || '').trim(),
+              topic: (this.cellForm.topic || '').trim(),
+              description: (this.cellForm.description || '').trim(),
+              minutes: normalizeFloatValue(this.cellForm.minutes),
+              testCount: normalizeFloatValue(this.cellForm.testCount),
+              correct: normalizeFloatValue(this.cellForm.correct),
+              wrong: normalizeFloatValue(this.cellForm.wrong),
+              unanswered: normalizeFloatValue(this.cellForm.unanswered),
+              performance: this.cellForm.performance || 'عالی',
+              issue: (this.cellForm.issue || '').trim(),
+              completed: !!this.cellForm.completed
+            };
+
+            if (!week.plan[dayIndex]) week.plan[dayIndex] = {};
+            if (payload.lesson || payload.topic || payload.description) {
+              week.plan[dayIndex][slotId] = {
+                lesson: payload.lesson,
+                topic: payload.topic,
+                description: payload.description,
+                updatedAt: new Date().toISOString()
+              };
+            } else {
+              delete week.plan[dayIndex][slotId];
+            }
+
+            if (!payload.completed) {
+              if (week.partReports?.[dayIndex]) delete week.partReports[dayIndex][slotId];
+              if (week.partReports?.[dayIndex] && !Object.keys(week.partReports[dayIndex]).length) delete week.partReports[dayIndex];
+              if (!Object.keys(week.plan[dayIndex] || {}).length) delete week.plan[dayIndex];
+              this.saveState();
+              this.showToast('برنامه پارت ذخیره شد و هنوز به‌عنوان انجام‌شده ثبت نشده است.', 'success');
+              this.closeModal();
+              return;
+            }
+
+            const errors = validateReport(payload);
+            if (payload.minutes !== null && payload.minutes !== undefined && Number(payload.minutes) < 0) {
+              errors.push('زمان مطالعه نباید منفی باشد.');
+            }
+
+            const slot = (week.timeSlots || []).find((item) => item.id === slotId);
+            if (slot && payload.minutes !== null && payload.minutes !== undefined && payload.minutes > getSlotDurationMinutes(slot)) {
+              errors.push('زمان مطالعه مفید نباید از مدت بازه زمانی بیشتر باشد.');
+            }
+
+            if (errors.length) {
+              this.cellErrors = errors;
+              return;
+            }
+
+            if (!week.partReports[dayIndex]) week.partReports[dayIndex] = {};
+            week.partReports[dayIndex][slotId] = {
+              minutes: payload.minutes ?? 0,
+              testCount: payload.testCount ?? 0,
+              correct: payload.correct ?? 0,
+              wrong: payload.wrong ?? 0,
+              unanswered: payload.unanswered ?? 0,
+              performance: payload.performance,
+              issue: payload.issue,
+              updatedAt: new Date().toISOString()
+            };
+
+            if (!Object.keys(week.plan[dayIndex] || {}).length) delete week.plan[dayIndex];
+            if (!Object.keys(week.partReports[dayIndex] || {}).length) delete week.partReports[dayIndex];
+
+            this.saveState();
+            this.showToast('گزارش پارت با موفقیت ثبت شد و وضعیت آن به انجام‌شده تغییر کرد.', 'success');
+            this.closeModal();
+          },
+          clearCellData() {
+            const week = this.currentWeek;
+            const { dayIndex, slotId } = this.editCellKey || {};
+            if (!week || dayIndex === undefined || !slotId) return;
+
+            const hasPremiumData = !!(this.getPlan(dayIndex, slotId) || this.getReport(dayIndex, slotId));
+            if (!hasPremiumData) {
+              this.closeModal();
+              return;
+            }
+
+            if (!window.confirm('آیا مطمئن هستید که می‌خواهید این پارت را خالی کنید؟ این کار برنامه و گزارش مرتبط را حذف می‌کند.')) {
+              return;
+            }
+
+            if (week.plan?.[dayIndex]) delete week.plan[dayIndex][slotId];
+            if (week.partReports?.[dayIndex]) delete week.partReports[dayIndex][slotId];
+            if (week.plan?.[dayIndex] && !Object.keys(week.plan[dayIndex]).length) delete week.plan[dayIndex];
+            if (week.partReports?.[dayIndex] && !Object.keys(week.partReports[dayIndex]).length) delete week.partReports[dayIndex];
+
+            this.saveState();
+            this.showToast('پارت حذف شد.', 'success');
+            this.closeModal();
+          },
+          openBackupModal() {
+            this.modal = { visible: true, type: 'backup', title: 'پشتیبان‌گیری و بازیابی' };
+          },
+          downloadBackupJson() {
+            const payload = JSON.stringify(this.state, null, 2);
+            this.downloadBlob('backup-study-planner.json', payload, 'application/json');
+          },
+          downloadCurrentWeekTxt() {
+            const text = this.generateWeekTxt();
+            this.downloadBlob(`plan-${this.currentWeek?.id || 'week'}.txt`, text, 'text/plain;charset=utf-8');
+          },
+          importBackupJson(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+              try {
+                const parsed = JSON.parse(String(reader.result));
+                if (!parsed || !Array.isArray(parsed.weeks)) {
+                  throw new Error('ساختار فایل نامعتبر است.');
+                }
+                if (!window.confirm('با واردکردن فایل پشتیبان، داده‌های موجود جایگزین می‌شوند. ادامه می‌دهید؟')) {
+                  return;
+                }
+                this.state = parsed;
+                this.state.selectedDay = clamp(Number(this.state.selectedDay) || 0, 0, 6);
+                this.state.selectedWeekId = this.state.selectedWeekId || this.state.weeks[0]?.id || null;
+                this.saveState();
+                this.showToast('اطلاعات پشتیبان بازیابی شد.', 'success');
+                event.target.value = '';
+                this.closeModal();
+              } catch (error) {
+                console.error(error);
+                this.showToast('فایل پشتیبان نامعتبر است.', 'error');
+              }
+            };
+            reader.readAsText(file, 'UTF-8');
+          },
+          downloadBlob(filename, text, mimeType) {
+            const blob = new Blob([text], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            anchor.style.display = 'none';
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          },
+          saveDailyReport() {
+            const week = this.currentWeek;
+            if (!week) return;
+            const dayIndex = this.selectedDay;
+            const values = {
+              sleep: normalizeFloatValue(this.dailyReportForm.sleep),
+              mobileUsage: normalizeFloatValue(this.dailyReportForm.mobileUsage),
+              focus: normalizeFloatValue(this.dailyReportForm.focus),
+              energy: normalizeFloatValue(this.dailyReportForm.energy),
+              homework: (this.dailyReportForm.homework || '').trim(),
+              needsAttention: (this.dailyReportForm.needsAttention || '').trim(),
+              note: (this.dailyReportForm.note || '').trim()
+            };
+
+            if (values.sleep !== null && values.sleep < 0) {
+              this.showToast('میزان خواب نباید منفی باشد.', 'error');
+              return;
+            }
+            if (values.mobileUsage !== null && values.mobileUsage < 0) {
+              this.showToast('میزان استفاده غیرضروری از گوشی نباید منفی باشد.', 'error');
+              return;
+            }
+            if (values.focus !== null && (values.focus < 0 || values.focus > 10)) {
+              this.showToast('امتیاز تمرکز باید بین ۰ تا ۱۰ باشد.', 'error');
+              return;
+            }
+            if (values.energy !== null && (values.energy < 0 || values.energy > 10)) {
+              this.showToast('امتیاز حال و انرژی باید بین ۰ تا ۱۰ باشد.', 'error');
+              return;
+            }
+
+            if (!week.dailyReports[dayIndex]) week.dailyReports[dayIndex] = {};
+            week.dailyReports[dayIndex] = values;
+            this.saveState();
+            this.showToast('اطلاعات روزانه ذخیره شد.', 'success');
+          },
+          downloadDailyTxt() {
+            const text = this.generateDailyTxt();
+            const date = this.getDateForDayIndex(this.selectedDay);
+            const dateLabel = toIsoDate(date).replace(/-/g, '-');
+            const dayName = weekDays[this.selectedDay] || 'روز';
+            this.downloadBlob(`gozaresh-${dayName}-${toIsoDate(date)}.txt`, text, 'text/plain;charset=utf-8');
+          },
+          generateWeekTxt() {
+            const week = this.currentWeek;
+            if (!week) return 'هیچ هفته‌ای وجود ندارد.';
+            const lines = ['برنامه هفتگی', ''];
+            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+              const dayName = weekDays[dayIndex];
+              lines.push(`${dayName}:`);
+              const dayPlan = week.plan?.[dayIndex] || {};
+              const orderedSlots = (week.timeSlots || []).filter((slot) => dayPlan[slot.id]);
+              if (!orderedSlots.length) {
+                lines.push('—');
+                continue;
+              }
+              for (const slot of orderedSlots) {
+                const p = dayPlan[slot.id];
+                lines.push(`${slot.start} تا ${slot.end}: ${p.lesson || '—'} / ${p.topic || '—'}`);
+              }
+            }
+            return lines.join('\n');
+          },
+          generateDailyTxt() {
+            const week = this.currentWeek;
+            const dayIndex = this.selectedDay;
+            if (!week) return 'هیچ داده‌ای برای گزارش وجود ندارد.';
+
+            const date = this.getDateForDayIndex(dayIndex);
+            const dailyReport = week.dailyReports?.[dayIndex] || {};
+            const dayPlan = week.plan?.[dayIndex] || {};
+            const dayReports = week.partReports?.[dayIndex] || {};
+            const startTime = this.dailySummary.startTime || '—';
+            const endTime = this.dailySummary.endTime || '—';
+            const totalStudy = this.dailySummary.totalStudy || '—';
+            const totalTests = this.dailySummary.totalTests || '—';
+
+            const orderedSlotIds = (week.timeSlots || []).filter((slot) => dayReports[slot.id] || dayPlan[slot.id]);
+            const partLines = [];
+            for (const slot of orderedSlotIds) {
+              const report = dayReports[slot.id];
+              if (!report) continue;
+              const part = dayPlan[slot.id] || {};
+              const tests = report.testCount ?? null;
+              const correct = report.correct ?? null;
+              const wrong = report.wrong ?? null;
+              const unanswered = report.unanswered ?? null;
+              const lesson = part.lesson || '—';
+              const topic = part.topic || '—';
+              partLines.push(`درس / مبحث: ${lesson} / ${topic}`);
+              partLines.push(`زمان مطالعه: ${report.minutes ? formatMinutesToHourText(report.minutes) : 'نامشخص'}`);
+              partLines.push(`تعداد تست: ${tests !== null && tests !== undefined && tests !== '' ? tests : '-'}`);
+              partLines.push(`درست: ${correct !== null && correct !== undefined && correct !== '' ? correct : '-'}`);
+              partLines.push(`غلط: ${wrong !== null && wrong !== undefined && wrong !== '' ? wrong : '-'}`);
+              partLines.push(`نزده: ${unanswered !== null && unanswered !== undefined && unanswered !== '' ? unanswered : '-'}`);
+              partLines.push(`نحوه عملکرد: ${report.performance || '-'}`);
+              partLines.push(`مشکل اصلی در این پارت: ${report.issue || '-'}`);
+              partLines.push('');
+            }
+
+            const lines = [
+              'گزارش کار روزانه',
+              '',
+              `تاریخ: ${formatPersianDate(date)}`,
+              `ساعت شروع مطالعه: ${startTime}`,
+              `ساعت پایان مطالعه: ${endTime}`,
+              `مجموع مطالعه مفید: ${totalStudy}`,
+              `مجموع تست: ${totalTests}`,
+              '',
+              'پارت‌های مطالعه',
+              ''
+            ];
+
+            if (partLines.length) {
+              lines.push(...partLines);
+            } else {
+              lines.push('هیچ پارت انجام‌شده‌ای برای این روز ثبت نشده است.');
+              lines.push('');
+            }
+
+            lines.push(`خواب: ${dailyReport.sleep !== null && dailyReport.sleep !== undefined && dailyReport.sleep !== '' ? `${dailyReport.sleep} ساعت` : '-'}`);
+            lines.push(`میزان استفاده غیرضروری از گوشی: ${dailyReport.mobileUsage !== null && dailyReport.mobileUsage !== undefined && dailyReport.mobileUsage !== '' ? `${dailyReport.mobileUsage} ساعت` : '-'}`);
+            lines.push(`تمرکز: ${dailyReport.focus !== null && dailyReport.focus !== undefined && dailyReport.focus !== '' ? `${dailyReport.focus}/10` : '-'}`);
+            lines.push(`حال و انرژی: ${dailyReport.energy !== null && dailyReport.energy !== undefined && dailyReport.energy !== '' ? `${dailyReport.energy}/10` : '-'}`);
+            lines.push('');
+            lines.push(`مشق شب: ${dailyReport.homework || '-'}`);
+            lines.push(`مبحث یا درسی که نیاز به توجه بیشتری دارد: ${dailyReport.needsAttention || '-'}`);
+            lines.push(`مهم‌ترین نکته‌ای که باید در برنامه‌ریزی بعدی در نظر گرفته شود: ${dailyReport.note || '-'}`);
+            return `${lines.join('\n')}\n`;
+          },
+          resetDailyForm() {
+            const dayIndex = this.selectedDay;
+            const data = this.currentWeek?.dailyReports?.[dayIndex] || {};
+            this.dailyReportForm = {
+              sleep: data.sleep ?? '',
+              mobileUsage: data.mobileUsage ?? '',
+              focus: data.focus ?? '',
+              energy: data.energy ?? '',
+              homework: data.homework ?? '',
+              needsAttention: data.needsAttention ?? '',
+              note: data.note ?? ''
+            };
+          }
+        },
+        mounted() {
+          this.ensureWeekExists();
+          this.resetDailyForm();
+          if (this.currentWeek && !this.currentWeek.timeSlots.length) {
+            this.currentWeek.timeSlots = [
+              { id: makeId('slot'), start: '08:00', end: '09:30' },
+              { id: makeId('slot'), start: '09:45', end: '11:15' },
+              { id: makeId('slot'), start: '11:30', end: '13:00' }
+            ];
+          }
+          this.$nextTick(() => this.updateAnalyticsCharts());
+          this.chartResizeHandler = () => this.updateAnalyticsCharts();
+          window.addEventListener('resize', this.chartResizeHandler);
+        },
+        beforeUnmount() {
+          Object.values(this.chartInstances).forEach((chart) => chart && chart.destroy());
+          if (this.chartResizeHandler) {
+            window.removeEventListener('resize', this.chartResizeHandler);
+          }
+        },
+        beforeUpdate() {
+          const week = this.currentWeek;
+          if (!week) return;
+          if (this.selectedDay > 6) this.state.selectedDay = 0;
+        }
+      });
+
+      app.config.globalProperties = {
+        formatPersianDate,
+        toPersianDayLabel
+      };
+
+      app.mount('#app');
+    </script>
+  </body>
+</html>
